@@ -19,13 +19,13 @@ layui.define(['table', 'form'], function(exports){
     ,url: layui.setter.base + 'json/content/list.js' //模拟接口
     ,cols: [[
       {type: 'checkbox', fixed: 'left'}
-      ,{field: 'id', width: 100, title: '文章ID', sort: true}
-      ,{field: 'label', title: '文章标签', minWidth: 100}
-      ,{field: 'title', title: '文章标题'}
-      ,{field: 'author', title: '作者'}
-      ,{field: 'uploadtime', title: '上传时间', sort: true}
-      ,{field: 'status', title: '发布状态', templet: '#buttonTpl', minWidth: 80, align: 'center'}
-      ,{title: '操作', minWidth: 150, align: 'center', fixed: 'right', toolbar: '#table-content-list'}
+      ,{field: 'UserId', title: '用户名称'}
+      ,{field: 'OpenTime', title: '开始日期', sort: true, align: 'center'}
+      ,{field: 'CloseTime', title: '到期日期', sort: true, align: 'center'}
+      ,{field: 'BindMobile', title: '绑定手机', align: 'center'}
+      ,{field: 'Inviter', title: '邀请人', align: 'center'}
+      ,{field: 'InviteCode', title: '邀请码', align: 'center'}
+      ,{title: '操作', width: 100, align: 'center', fixed: 'right', toolbar: '#table-content-list'}
     ]]
     ,page: true
     ,limit: 10
@@ -35,19 +35,23 @@ layui.define(['table', 'form'], function(exports){
   
   //监听工具条
   table.on('tool(LAY-app-content-list)', function(obj){
-    var data = obj.data;
+    var data = obj.data, str = '';
     if(obj.event === 'del'){
       layer.confirm('确定删除此文章？', function(index){
         obj.del();
         layer.close(index);
       });
     } else if(obj.event === 'edit'){
+        //传参
+        for(var k in data) {
+            str += k + '=' + data[k] + '&';
+        }
       layer.open({
         type: 2
-        ,title: '编辑文章'
-        ,content: '../../../views/app/content/listform.html?id='+ data.id
+        ,title: '编辑账号'
+        ,content: '../../views/manage/listform.html?'+ str
         ,maxmin: true
-        ,area: ['550px', '550px']
+        ,area: ['600px', '450px']
         ,btn: ['确定', '取消']
         ,yes: function(index, layero){
           var iframeWindow = window['layui-layer-iframe'+ index]
@@ -60,10 +64,10 @@ layui.define(['table', 'form'], function(exports){
             //提交 Ajax 成功后，静态更新表格中的数据
             //$.ajax({});              
             obj.update({
-              label: field.label
-              ,title: field.title
-              ,author: field.author
-              ,status: field.status
+                 UserId: field.UserId
+                ,OpenTime: field.Date.split(' - ')[0]
+                ,CloseTime: field.Date.split(' - ')[1]
+                ,InviteCode: field.InviteCode
             }); //数据更新
             
             form.render();
