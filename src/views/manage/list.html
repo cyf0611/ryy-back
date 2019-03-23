@@ -87,16 +87,29 @@
       batchdel: function(){
         var checkStatus = table.checkStatus('LAY-app-content-list')
         ,checkData = checkStatus.data; //得到选中的数据
-
         if(checkData.length === 0){
           return layer.msg('请选择数据');
         }
-        layer.confirm('<form class="layui-form"><input type="radio" name="sex" value="男" title="7天" checked=""><input type="radio" name="sex" value="女" title="30天"> <input type="radio" name="sex" value="女" title="60天"></form>', {title:'批量延期'}, function(index){
-            //do something
-            layer.close(index);
+        var users = checkData.map(function(v) {
+            return v.UserId;
+        }).join(',');
+        layer.confirm('<form class="layui-form" id="cycle_form"><input type="radio" name="cycle" value="1" title="1天" checked=""><input type="radio" name="cycle" value="30" title="30天"><input type="radio" name="cycle" value="90" title="90天"><input type="radio" name="cycle" value="180" title="180天"><input type="radio" name="cycle" value="360" title="360天"></form>', {title:'批量延期'}, function(index){
+            var cycle = $('#cycle_form input[type="radio"]:checked').val();
+            $.post(layui.setter.url + '/back_add_cycle', {users: users, cycle: cycle}, function(data) {
+                console.log(data);
+                if(data.code == 200) {
+                    layer.msg('用户 '+users+' 成功延期 '+cycle+' 天');
+                    layer.close(index);
+                    //执行重载
+                    table.reload('LAY-app-content-list');
+                }else {
+                    layer.msg('操作失败');
+                }
+            })
         }, function () {
         });
         form.render();
+
       },
       add: function(){
         layer.open({
