@@ -12,23 +12,31 @@ layui.define(['table', 'form'], function(exports){
   var $ = layui.$
   ,table = layui.table
   ,form = layui.form;
-
+  
   //文章管理
   table.render({
     elem: '#LAY-app-content-list'
-    ,url: layui.setter.base + 'json/content/list.js' //模拟接口
+    ,url: layui.setter.url + '/back_query_user' //模拟接口
     ,cols: [[
       {type: 'checkbox', fixed: 'left'}
-      ,{field: 'UserId', title: '用户名称'}
-      ,{field: 'OpenTime', title: '开始日期', sort: true, align: 'center'}
-      ,{field: 'CloseTime', title: '到期日期', sort: true, align: 'center'}
-      ,{field: 'BindMobile', title: '绑定手机', align: 'center'}
-      ,{field: 'Inviter', title: '邀请人', align: 'center'}
-      ,{field: 'InviteCode', title: '邀请码', align: 'center'}
+      ,{field: 'UserId', title: '用户名称', width: 150}
+      ,{field: 'OpenTime', title: '开始日期', sort: true, align: 'center', templet: function(d) {return d.OpenTime && d.OpenTime.slice(0, 10) || ''}}
+      ,{field: 'CloseTime', title: '到期日期', sort: true, align: 'center', templet: function(d) {return d.OpenTime && d.CloseTime.slice(0, 10) || ''}}
+      ,{field: 'BindMobile', title: '绑定手机' , width: 150, align: 'center'}
+      ,{field: 'Inviter', width: 100, title: '邀请人', align: 'center', template: function(d) {return d.Inviter || ''}}
+      ,{field: 'InviteCode', width: 100, title: '邀请码', align: 'center'}
       ,{title: '操作', width: 100, align: 'center', fixed: 'right', toolbar: '#table-content-list'}
     ]]
+    ,parseData: function(res){ //res 即为原始返回的数据
+        return {
+            "code": 0, //解析接口状态
+            "msg": res.msg, //解析提示文本
+            "count": res.count, //解析数据长度
+            "data": res.data //解析数据列表
+        };
+    }
     ,page: true
-    ,limit: 10
+    ,limit: 20
     ,limits: [10, 15, 20, 25, 30]
     ,text: '对不起，加载出现异常！'
   });
@@ -49,7 +57,7 @@ layui.define(['table', 'form'], function(exports){
       layer.open({
         type: 2
         ,title: '编辑账号'
-        ,content: '../../views/manage/listform.html?'+ str
+        ,content: '../../views/manage/listform_edit.html?'+ str
         ,maxmin: true
         ,area: ['600px', '450px']
         ,btn: ['确定', '取消']
@@ -60,18 +68,26 @@ layui.define(['table', 'form'], function(exports){
           //监听提交
           iframeWindow.layui.form.on('submit(layuiadmin-app-form-edit)', function(data){
             var field = data.field; //获取提交的字段
-            
             //提交 Ajax 成功后，静态更新表格中的数据
-            //$.ajax({});              
-            obj.update({
-                 UserId: field.UserId
-                ,OpenTime: field.Date.split(' - ')[0]
-                ,CloseTime: field.Date.split(' - ')[1]
-                ,InviteCode: field.InviteCode
-            }); //数据更新
-            
-            form.render();
-            layer.close(index); //关闭弹层
+            $.post(layui.setter.url + '/modify_user', field, function(data) {
+                if(data.code == 200) {
+                    obj.update({
+                        UserId: field.UserId
+                        ,OpenTime: field.Date.split(' - ')[0]
+                        ,CloseTime: field.Date.split(' - ')[1]
+                        ,InviteCode: field.InviteCode
+                        ,UserPwd: field.UserPwd
+                    }); //数据更新
+
+                    form.render();
+                    layer.close(index); //关闭弹层
+                    layer.msg('修改成功')
+                }else {
+                  console.log(data.msg);
+                   layer.msg(data.msg || '修改失败')
+                }
+            })
+
           });  
           
           submit.trigger('click');

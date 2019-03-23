@@ -32,7 +32,7 @@
           <div class="layui-inline">
             <label class="layui-form-label">日期</label>
             <div class="layui-input-inline">
-                <input type="text" class="layui-input" id="date" placeholder="请选择">
+                <input type="text" name="Date" class="layui-input" id="Date" placeholder="请选择">
             </div>
           </div>
           <div class="layui-inline">
@@ -69,22 +69,9 @@
 
   //日期范围
   laydate.render({
-      elem: '#date'
+      elem: '#Date'
       ,range: true
   });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     //监听搜索
     form.on('submit(LAY-app-contlist-search)', function(data){
@@ -115,7 +102,7 @@
         layer.open({
           type: 2
           ,title: '新增账号'
-          ,content: 'listform.html'
+          ,content: 'listform_add.html'
           ,maxmin: true
           ,area: ['600px', '450px']
           ,btn: ['确定', '取消']

@@ -16,7 +16,13 @@
     <div class="layui-form-item">
       <label class="layui-form-label">用户名称</label>
       <div class="layui-input-inline">
-        <input type="text" name="UserId" id="UserId" lay-verify="required" placeholder="请输入用户名称" autocomplete="off" class="layui-input">
+        <input type="text" name="UserId" id="UserId" placeholder="请输入用户名称" lay-verify="required" class="layui-input ">
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">用户密码</label>
+      <div class="layui-input-inline">
+        <input type="text" name="UserPwd" id="UserPwd" placeholder="请输入用户密码" lay-verify="required" class="layui-input">
       </div>
     </div>
     <div class="layui-form-item">
@@ -26,9 +32,9 @@
       </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">邀请码</label>
+        <label class="layui-form-label">邀请人邀请码</label>
         <div class="layui-input-inline">
-            <input type="text" name="InviteCode" id="InviteCode" placeholder="请输入邀请码" autocomplete="off" class="layui-input">
+            <input type="text" name="Inviter" id="Inviter" placeholder="邀请码可不填写" class="layui-input">
         </div>
     </div>
 
@@ -49,29 +55,26 @@
     ,form = layui.form
     ,laydate = layui.laydate;
 
-    //获取url参数
-    var str = location.search.slice(1), obj = {};
-    str.split('&').forEach(function (v, i) {
-        var data = v.split('=');
-        obj[data[0]] = data[1];
-        $('#' + data[0]).val(data[1]);
-    });
     //日期范围
     laydate.render({
         elem: '#date'
-        ,range: true,
-        value: obj.OpenTime && (obj.OpenTime + ' - ' + obj.CloseTime)
+        ,range: true
     });
 
     //监听提交
     form.on('submit(layuiadmin-app-form-submit)', function(data){
       var field = data.field; //获取提交的字段
       var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引  
+      $.post(layui.setter.url + '/back_add_user', field, function(data) {
+          if(data.code == 200) {
+               parent.layui.table.reload('LAY-app-content-list'); //重载表格
+               parent.layer.close(index); //再执行关闭
+               layer.msg('添加成功');
+          }else {
+              layer.msg(data.msg || '添加失败');
+          }
+      })
 
-      //提交 Ajax 成功后，关闭当前弹层并重载表格
-      //$.ajax({});
-      parent.layui.table.reload('LAY-app-content-list'); //重载表格
-      parent.layer.close(index); //再执行关闭 
     });
 
 
