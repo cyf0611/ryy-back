@@ -8,7 +8,7 @@
  */
 
 
-layui.define(['table', 'form'], function(exports){
+layui.define(['table', 'form', 'setToken'], function(exports){
   var $ = layui.$
   ,table = layui.table
   ,form = layui.form;
